@@ -15,8 +15,8 @@ interface WeeklySchedule {
 }
 
 interface Interval {
-  from: string | moment.Moment
-  to: string | moment.Moment
+  from?: string | moment.Moment
+  to?: string | moment.Moment
   reference?: any
 }
 

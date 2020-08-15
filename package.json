@@ -1,7 +1,7 @@
 {
-  "name": "@ssense/sscheduler",
-  "version": "1.3.2",
-  "description": "Flexible scheduler to find free time slots in the schedule of a resource",
+  "name": "leooxx/sscheduler-slots",
+  "version": "1.4.2",
+  "description": "Flexible scheduler to find free time slots in the schedule of a resource with slots config",
   "main": "./dist/index.js",
   "scripts": {
     "compile": "rm -rf dist/* && tsc",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SSENSE/node-sscheduler.git"
+    "url": "git+https://github.com/leooxx/node-sscheduler-slots.git"
   },
   "keywords": [
     "scheduler",
