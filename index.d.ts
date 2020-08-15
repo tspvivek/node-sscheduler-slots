@@ -31,12 +31,8 @@ interface Allocated {
 }
 
 interface Schedule extends Interval {
-<<<<<<< HEAD
     slots?: Interval[];
     unavailability?: Interval[];
-=======
-  unavailability?: Interval[]
->>>>>>> master
 }
 
 export interface TimeAvailability {
