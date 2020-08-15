@@ -53,18 +53,39 @@ export class Scheduler {
     }
 
     protected validateAndCastDaySchedule(schedule: Schedule): Schedule {
-        const s: Schedule = {
-            from: moment(schedule.from, 'HH:mm'),
-            to: moment(schedule.to, 'HH:mm'),
-            reference: schedule.reference || null
-        };
-
-        if (! (<moment.Moment> s.from).isValid()) {
-            throw new Error('"from" must be a time in the format HH:mm');
-        } else if (! (<moment.Moment> s.to).isValid()) {
-            throw new Error('"to" must be a time in the format HH:mm');
-        } else if (! (<moment.Moment> s.to).isAfter(s.from)) {
-            throw new Error('"to" must be greater than "from"');
+        const s: Schedule = {slots : []};
+        // using slots
+        if (schedule.slots){
+            for (const slot of schedule.slots) {
+                const newSlot = {
+                    from: moment(slot.from, 'HH:mm'),
+                    to: moment(slot.to, 'HH:mm'),
+                    reference: slot.reference || null
+                };
+                if (! (<moment.Moment> newSlot.from).isValid()) {
+                    throw new Error('"from" must be a time in the format HH:mm');
+                } else if (! (<moment.Moment> newSlot.to).isValid()) {
+                    throw new Error('"to" must be a time in the format HH:mm');
+                } else if (! (<moment.Moment> newSlot.to).isAfter(newSlot.from)) {
+                    throw new Error('"to" must be greater than "from"');
+                }
+                s.slots.push(newSlot);
+            };
+        // or using from to
+        }else{
+            const aloneSlot = {
+                from: moment(schedule.from, 'HH:mm'),
+                to: moment(schedule.to, 'HH:mm'),
+                reference: schedule.reference || null
+            };
+            if (! (<moment.Moment> aloneSlot.from).isValid()) {
+                throw new Error('"from" must be a time in the format HH:mm');
+            } else if (! (<moment.Moment> aloneSlot.to).isValid()) {
+                throw new Error('"to" must be a time in the format HH:mm');
+            } else if (! (<moment.Moment> aloneSlot.to).isAfter(aloneSlot.from)) {
+                throw new Error('"to" must be greater than "from"');
+            }
+            s.slots.push(aloneSlot);
         }
 
         if (schedule.unavailability) {
@@ -342,50 +363,52 @@ export class Scheduler {
             if (daySchedule !== undefined) {
                 const dayAvailability: TimeAvailability[] = [];
 
-                const timeSlotStart = (<moment.Moment> daySchedule.from).clone().year(curDate.year()).dayOfYear(curDate.dayOfYear());
+                for (const slot of daySchedule.slots) {
 
-                // Loop from <curTime> to <endTime> in <interval> increments
-                while (this.isTimeBefore(timeSlotStart, (<moment.Moment> daySchedule.to))) {
-                    const timeSlotEnd = timeSlotStart.clone().add({ minutes: this.params.duration });
-                    if (this.isTimeAfter(timeSlotEnd, (<moment.Moment> daySchedule.to))) {
+                    const timeSlotStart = (<moment.Moment> slot.from).clone().year(curDate.year()).dayOfYear(curDate.dayOfYear());
+
+                    // Loop from <curTime> to <endTime> in <interval> increments
+                    while (this.isTimeBefore(timeSlotStart, (<moment.Moment> slot.to))) {
+                        const timeSlotEnd = timeSlotStart.clone().add({ minutes: this.params.duration });
+                        if (this.isTimeAfter(timeSlotEnd, (<moment.Moment> slot.to))) {
+                            dayAvailability.push({
+                                time: timeSlotStart.format('HH:mm'),
+                                available: false,
+                                reference: slot.reference
+                            });
+                            timeSlotStart.add({ minutes: this.params.interval });
+                            continue;
+                        }
+                        let isAvailable = true;
+
+                        // Verify that the resource is not unavailable for the <curTime>
+                        if (this.params.schedule.unavailability !== undefined) {
+                            isAvailable = this.isDateTimeslotAvailable(timeSlotStart, timeSlotEnd, this.params.schedule.unavailability);
+                        }
+
+                        // Verify that the resource is not on a daily break
+                        if (isAvailable && daySchedule.unavailability !== undefined) {
+                            isAvailable = this.isTimeslotAvailable(timeSlotStart, timeSlotEnd, daySchedule.unavailability);
+                        }
+
+                        // Verify that the resource is not allocated for the <curTime>
+                        if (isAvailable && this.params.schedule.allocated) {
+                            const allocatedToday = this.params.schedule.allocated.filter((a: any) => {
+                                return a.from.year() === timeSlotStart.year() &&
+                                    a.from.dayOfYear() === timeSlotStart.dayOfYear();
+                            });
+                            isAvailable = this.isTimeslotAvailable(timeSlotStart, timeSlotEnd, allocatedToday);
+                        }
+
                         dayAvailability.push({
                             time: timeSlotStart.format('HH:mm'),
-                            available: false,
+                            available: isAvailable,
                             reference: daySchedule.reference
                         });
+
                         timeSlotStart.add({ minutes: this.params.interval });
-                        continue;
                     }
-                    let isAvailable = true;
-
-                    // Verify that the resource is not unavailable for the <curTime>
-                    if (this.params.schedule.unavailability !== undefined) {
-                        isAvailable = this.isDateTimeslotAvailable(timeSlotStart, timeSlotEnd, this.params.schedule.unavailability);
-                    }
-
-                    // Verify that the resource is not on a daily break
-                    if (isAvailable && daySchedule.unavailability !== undefined) {
-                        isAvailable = this.isTimeslotAvailable(timeSlotStart, timeSlotEnd, daySchedule.unavailability);
-                    }
-
-                    // Verify that the resource is not allocated for the <curTime>
-                    if (isAvailable && this.params.schedule.allocated) {
-                        const allocatedToday = this.params.schedule.allocated.filter((a: any) => {
-                            return a.from.year() === timeSlotStart.year() &&
-                                a.from.dayOfYear() === timeSlotStart.dayOfYear();
-                        });
-                        isAvailable = this.isTimeslotAvailable(timeSlotStart, timeSlotEnd, allocatedToday);
-                    }
-
-                    dayAvailability.push({
-                        time: timeSlotStart.format('HH:mm'),
-                        available: isAvailable,
-                        reference: daySchedule.reference
-                    });
-
-                    timeSlotStart.add({ minutes: this.params.interval });
                 }
-
                 response[curDate.format('YYYY-MM-DD')] = dayAvailability;
             }
 
@@ -432,3 +455,4 @@ export class Scheduler {
         return availabilities[0];
     }
 }
+
