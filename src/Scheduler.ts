@@ -366,11 +366,12 @@ export class Scheduler {
                 for (const slot of daySchedule.slots) {
 
                     const timeSlotStart = (<moment.Moment> slot.from).clone().year(curDate.year()).dayOfYear(curDate.dayOfYear());
+                    const timeEndDay = (<moment.Moment> timeSlotStart).clone().endOf('day');
 
                     // Loop from <curTime> to <endTime> in <interval> increments
-                    while (this.isTimeBefore(timeSlotStart, (<moment.Moment> slot.to))) {
+                    while (this.isTimeBefore(timeSlotStart, (<moment.Moment> slot.to)) && timeSlotStart.isBefore(timeEndDay)) {
                         const timeSlotEnd = timeSlotStart.clone().add({ minutes: this.params.duration });
-                        if (this.isTimeAfter(timeSlotEnd, (<moment.Moment> slot.to))) {
+                        if (this.isTimeAfter(timeSlotEnd, (<moment.Moment> slot.to)) || timeSlotEnd.isAfter(timeEndDay)) {
                             dayAvailability.push({
                                 time: timeSlotStart.format('HH:mm'),
                                 available: false,
