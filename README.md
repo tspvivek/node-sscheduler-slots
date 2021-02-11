@@ -163,6 +163,19 @@ const availability = scheduler.getIntersection({
 });
 ```
 
+## Build
+
+```bash
+npm install
+gulp
+```
+
+## Test
+```bash
+npm run compile
+npm run test
+```
+
 ## Authors
 
 * **Mickael Burguet** - *Senior Developer* - [rundef](http://rundef.com)

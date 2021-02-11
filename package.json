@@ -1,6 +1,6 @@
 {
-  "name": "leooxx/sscheduler-slots",
-  "version": "1.4.2",
+  "name": "@leooxx/sscheduler-slots",
+  "version": "1.4.3",
   "description": "Flexible scheduler to find free time slots in the schedule of a resource with slots config",
   "main": "./dist/index.js",
   "scripts": {
@@ -24,11 +24,15 @@
     "reservation",
     "time-slot"
   ],
-  "author": "Mickael Burguet <www.rundef.com>",
+  "author": "Léo Poitout",
   "publishConfig": {
     "access": "public"
   },
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/leooxx/node-sscheduler-slots/issues"
+  },
+  "homepage": "https://github.com/leooxx/node-sscheduler-slots#readme",
   "engines": {
     "node": ">= 6.2.0",
     "npm": ">= 3"
