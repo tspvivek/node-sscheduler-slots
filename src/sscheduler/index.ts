@@ -19,6 +19,7 @@ export interface SSchedulerParams {
     & Allocated
   >
   normalize?: boolean
+  showUnavailableAsRange?: boolean
   showUnavailable?: boolean
   duration?: number
   interval?: number

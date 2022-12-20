@@ -31,6 +31,7 @@ export default ({
   duration = DEFAULT_DURATION,
   showUnavailable = false,
   normalize = false,
+  showUnavailableAsRange = false,
   parseTimezone,
   displayTimezone,
   dateFormat
@@ -79,7 +80,8 @@ export default ({
         freeTimeSlots,
         interval,
         duration,
-        userFormatOptions
+        userFormatOptions,
+        showUnavailableAsRange
       )
     : normalizeMaybe(normalize)(
         Interval.partition(
@@ -97,7 +99,8 @@ const getTimeAvailabilities = (
   freeTimeSlots: Interval.Interval[],
   intervalSliceMinutes: number,
   duration: number,
-  options: Interval.IntervalOptions
+  options: Interval.IntervalOptions,
+  showUnavailableAsRange: boolean
 ): TimeAvailabilities => {
   const rangeIntervals = Interval.partition(
     range,
@@ -120,17 +123,18 @@ const getTimeAvailabilities = (
   }
 
   return rangeIntervals.reduce<TimeAvailabilities>((byDay, interval) => {
-    const { date, time } = getTimeAndDay(interval.from)
+    const {date:fromdate, time:fromtime } = getTimeAndDay(interval.from)
+    const {date:todate, time:totime } = getTimeAndDay(interval.to)
     const timeAvailability = {
-      available: (availabilitiesByDay[date] || []).some(
-        _time => _time === time
+      available: (availabilitiesByDay[fromdate] || []).some(
+        _time => _time === fromtime
       ),
-      time
+      time:showUnavailableAsRange ? fromtime+' - '+totime:fromtime
     }
 
     return {
       ...byDay,
-      [date]: (byDay[date] || []).concat(timeAvailability)
+      [fromdate]: (byDay[fromdate] || []).concat(timeAvailability)
     }
   }, {})
 }

@@ -289,6 +289,27 @@ Example:
 }
 ```
 
+## showUnavailableAsRange
+
+```ts
+type showUnavailableAsRange = boolean
+```
+
+_default: false_
+If set to true, the result will be shown as time ranges. Effective only if showUnavailable is set tot true
+
+Example:
+
+```ts
+{ '2017-02-01': [ { available: false, time: '00:00 - 01:00' },
+                  { available: false, time: '01:00 - 02:00' },
+                  { available: true, time: '02:00 - 03:00' }],
+  '2017-02-02': [ { available: false, time: '00:00 - 01:00' },
+                  { available: true, time: '01:00 - 02:00' },
+                  { available: false, time: '02:00 - 03:00' }]
+}
+```
+
 ## dateFormat
 
 ```ts
