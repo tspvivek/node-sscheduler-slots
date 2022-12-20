@@ -25,7 +25,7 @@ const time = (time: string, name: string, context: string) => {
 }
 
 const greaterThan = (from: string, to: string, context: string) => {
-  if (!moment(from, moment.ISO_8601).isBefore(to)) {
+  if (!moment(from, moment.ISO_8601).isSameOrBefore(to)) {
     throw new Error(
       `${context ? context + ' ' : ''}"to" must be greater than "from"`
     )
