@@ -1,6 +1,6 @@
 {
   "name": "@tspvivek/sscheduler",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "description": "Flexible scheduler to find free time slots in the schedule of a resource",
   "main": "./dist/index.js",
   "scripts": {

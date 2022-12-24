@@ -129,7 +129,14 @@ const getTimeAvailabilities = (
       available: (availabilitiesByDay[fromdate] || []).some(
         _time => _time === fromtime
       ),
-      time:showUnavailableAsRange ? fromtime+' - '+totime:fromtime
+      time:fromtime,
+      range:showUnavailableAsRange ? fromtime+' - '+totime:fromtime,
+      startdate:fromdate,
+      enddate:todate,
+      starttime:fromtime,
+      endtime:totime,
+      from: interval.from,
+      to: interval.to
     }
 
     return {
